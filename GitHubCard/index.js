@@ -23,8 +23,7 @@
           Using that array, iterate over it, requesting data for each user, creating a new card for each
           user, and adding that card to the DOM.
 */
-
-const followersArray = [];
+const followersArray = []
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
@@ -45,6 +44,57 @@ const followersArray = [];
 </div>
 
 */
+function GithubCard(object){
+  const card = document.createElement('div');
+  card.classList.add('card');
+
+  const img = document.createElement('img');
+  img.src = object['avatar_url'];
+
+  const cardInfo = document.createElement('div');
+  cardInfo.classList.add('card-info');
+
+  const name = document.createElement('h3');
+  name.classList.add('name');
+  name.textContent = object.login;
+
+  const username = document.createElement('p');
+  username.classList.add('username');
+  username.textContent = object.name;
+
+  const location = document.createElement('p');
+  location.textContent = `Location: ${object.location}`;
+
+  const profile = document.createElement('p');
+  profile.textContent = `Profile: `;
+
+  const githubLink = document.createElement('a');
+  githubLink.href = object['html_url'];
+  githubLink.textContent = object['html_url'];
+
+  const followers = document.createElement('p');
+  followers.textContent = `Followers: ${object.followers}`;
+
+  const following = document.createElement('p');
+  following.textContent = `Following: ${object.following}`;
+
+  const bio = document.createElement('p');
+  bio.textContent = `Bio: ${object.bio}`;
+
+  card.appendChild(img);
+  card.appendChild(cardInfo);
+  cardInfo.appendChild(name);
+  cardInfo.appendChild(username);
+  cardInfo.appendChild(location);
+  cardInfo.appendChild(profile);
+  cardInfo.appendChild(followers);
+  cardInfo.appendChild(following);
+  cardInfo.appendChild(bio);
+  profile.appendChild(githubLink);
+
+  return card;
+}
+
 
 /* List of LS Instructors Github username's: 
   tetondan
@@ -53,3 +103,36 @@ const followersArray = [];
   luishrd
   bigknell
 */
+
+const cards = document.querySelector('.cards');
+
+axios.get('https://api.github.com/users/nomadkitty')
+  .then((Response)=> {
+    console.log(Response);
+    cards.appendChild(GithubCard(Response.data));
+    })
+  
+const instructors = ['tetondan', 'dustinmyers', 'justsml', 'luishrd', 'bigknell']
+
+instructors.forEach(instructor=>{
+  axios.get(`https://api.github.com/users/${instructor}`)
+  .then(resp =>{
+    cards.appendChild(GithubCard(resp.data));
+  }) 
+})
+
+const followerurl = []
+
+axios.get('https://api.github.com/users/nomadkitty/followers')
+  .then ((resp) =>{
+    console.log(resp.data);
+    resp.data.forEach(item =>{
+      followerurl.push(item.url);
+    })
+    followerurl.forEach(urlItem =>{
+      axios.get(urlItem)
+        .then ((res)=>{
+          cards.appendChild(GithubCard(res.data));
+        })
+    })
+  })
